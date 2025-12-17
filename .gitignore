@@ -1,0 +1,10 @@
+﻿# OS noise
+.DS_Store
+Thumbs.db
+
+# Secrets/config (never commit)
+.env
+*.key
+*.pem
+*.pfx
+*.secret*
