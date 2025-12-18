@@ -5,14 +5,23 @@ param(
     [string]$GroupId = "com.khoi",
 
     [Alias("j")]
-    [ValidateSet(8, 11, 17, 21)]
+    [ValidateSet(17, 21)]
     [int]$JavaVersion = 17
 )
 
+$envFile = Join-Path $PSScriptRoot ".env"
+
+if (Test-Path $envFile) {
+    Get-Content $envFile | ForEach-Object {
+        if ($_ -match '^\s*#' -or $_ -match '^\s*$') { return }
+        $name, $value = $_ -split '=', 2
+        [System.Environment]::SetEnvironmentVariable($name.Trim(), $value.Trim())
+    }
+}
 
 $ErrorActionPreference = "Stop"
 
-$Root = "C:\Users\profile 1\dev\java"
+$Root = $env:JAVA_ROOT
 $projectPath = Join-Path $Root $Name
 
 if (Test-Path $projectPath) {
@@ -43,6 +52,28 @@ public class App {
 "@
 Set-Content -Path (Join-Path $pkgDir "App.java") -Value $appJava -Encoding UTF8
 
+# ----- AppTest.java (JUnit scaffolding) -----
+# Why: proves mvn test works and gives you a template to copy for real tests.
+$testPkgDir = Join-Path $srcTestJava $pkgPath
+New-Item -ItemType Directory -Path $testPkgDir -Force | Out-Null
+
+$appTestJava = @"
+package $GroupId;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class AppTest {
+
+    @Test
+    void sanityCheck() {
+        assertTrue(true);
+    }
+}
+"@
+Set-Content -Path (Join-Path $testPkgDir "AppTest.java") -Value $appTestJava -Encoding UTF8
+
 # ----- pom.xml -----
 # Why properties? It pins the Java version so Maven doesn't guess.
 $pom = @"
@@ -59,10 +90,33 @@ $pom = @"
   <properties>
     <maven.compiler.source>$JavaVersion</maven.compiler.source>
     <maven.compiler.target>$JavaVersion</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+
+  <dependencies>
+    <!-- JUnit 5 (Jupiter) for unit testing -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>5.10.2</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Surefire runs unit tests; this config ensures JUnit 5 tests are discovered -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.2.5</version>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>
 "@
+
 Set-Content -Path (Join-Path $projectPath "pom.xml") -Value $pom -Encoding UTF8
 
 # ----- Git init + .gitignore -----

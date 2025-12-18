@@ -5,7 +5,7 @@ A small collection of PowerShell scripts I use to bootstrap clean, repeatable de
 This repo is intentionally practical:
 - Scripts are designed for day-to-day use, not just demos
 - Defaults favor reproducibility (project-local envs, consistent structure, safe `.gitignore`)
-- Commands are written to be understandable and modifiable (not “magic”)
+- Commands are written to be understandable and modifiable
 
 ---
 
@@ -37,7 +37,7 @@ Creates a Python project with:
 newpy myproject 
 ```
 
-## Result:
+**Result:**
 ```
 myproject/
   .venv/
@@ -47,5 +47,9 @@ myproject/
     main.py
   requirements.txt
   .gitignore
-
 ```
+
+### `newjava.ps1` - Java project bootstrap
+
+Creates a Java project with
+- standard structure (``)

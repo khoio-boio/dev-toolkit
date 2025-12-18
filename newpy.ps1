@@ -3,10 +3,20 @@ param(
     [string]$Name
 )
 
+$envFile = Join-Path $PSScriptRoot ".env"
+
+if (Test-Path $envFile) {
+    Get-Content $envFile | ForEach-Object {
+        if ($_ -match '^\s*#' -or $_ -match '^\s*$') { return }
+        $name, $value = $_ -split '=', 2
+        [System.Environment]::SetEnvironmentVariable($name.Trim(), $value.Trim())
+    }
+}
+
 $ErrorActionPreference = "Stop"
 
 # ---- Configuration (safe defaults) ----
-$Root = "C:\Users\profile 1\dev\python"
+$Root = $env:PYTHON_ROOT
 
 $projectPath = Join-Path $Root $Name
 $srcPath     = Join-Path $projectPath "src"
