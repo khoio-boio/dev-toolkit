@@ -9,6 +9,29 @@ param(
     [int]$JavaVersion = 17
 )
 
+function Import-DotEnv {
+    param([string]$Path)
+
+    if (-not (Test-Path $Path)) { return }
+
+    Get-Content $Path | ForEach-Object {
+        $line = $_.Trim()
+        if ($line.Length -eq 0) { return }          # skip blanks
+        if ($line.StartsWith("#")) { return }       # skip comments
+
+        $parts = $line -split "=", 2
+        if ($parts.Count -ne 2) { return }
+
+        $name  = $parts[0].Trim()
+        $value = $parts[1].Trim()
+
+        # sets env var for this PowerShell process (and anything it launches)
+        [System.Environment]::SetEnvironmentVariable($name, $value)
+    }
+}
+
+Import-DotEnv (Join-Path $PSScriptRoot ".env")
+
 $envFile = Join-Path $PSScriptRoot ".env"
 
 if (Test-Path $envFile) {
@@ -50,7 +73,9 @@ public class App {
     }
 }
 "@
-Set-Content -Path (Join-Path $pkgDir "App.java") -Value $appJava -Encoding UTF8
+$Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[System.IO.File]::WriteAllText($appPath,  $appJava,     $Utf8NoBom)
+[System.IO.File]::WriteAllText($testPath, $appTestJava, $Utf8NoBom)
 
 # ----- AppTest.java (JUnit scaffolding) -----
 # Why: proves mvn test works and gives you a template to copy for real tests.
@@ -72,7 +97,9 @@ class AppTest {
     }
 }
 "@
-Set-Content -Path (Join-Path $testPkgDir "AppTest.java") -Value $appTestJava -Encoding UTF8
+$Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[System.IO.File]::WriteAllText($appPath,  $appJava,     $Utf8NoBom)
+[System.IO.File]::WriteAllText($testPath, $appTestJava, $Utf8NoBom)
 
 # ----- pom.xml -----
 # Why properties? It pins the Java version so Maven doesn't guess.

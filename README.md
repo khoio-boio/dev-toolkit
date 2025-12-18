@@ -21,6 +21,23 @@ These scripts make “new project setup” predictable and fast.
 
 ---
 
+## Getting Started
+
+1. Clone the repository:
+```powershell
+git clone git@github.com:khoio-boio/dev-toolkit.git
+cd dev-toolkit
+```
+2. (Optional but recommended) Create a local `.env` file:
+```powershell
+copy .env.example .env
+```
+Edit `.env` to match your system paths.
+
+3. Ensure scripts directory is on your PATH or use via PowerShell profile.
+
+---
+
 ## Scripts
 
 ### `newpy.ps1` — Python project bootstrap
@@ -49,7 +66,17 @@ myproject/
   .gitignore
 ```
 
-### `newjava.ps1` - Java project bootstrap
+### `newjava.ps1` — Java (Maven) project bootstrap
 
-Creates a Java project with
-- standard structure (``)
+Creates a Java project with:
+- Maven project structure
+- Configurable Java version (default: 17)
+- JUnit 5 test scaffolding
+- Safe `.gitignore`
+- Optional `.env`-based path configuration
+- Opens the project in VS Code
+
+**Examples:**
+```powershell
+newjava myapp
+newjava myapp -j 21

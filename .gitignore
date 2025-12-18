@@ -4,6 +4,7 @@ Thumbs.db
 
 # Secrets/config (never commit)
 .env
+*.env.local
 *.key
 *.pem
 *.pfx
